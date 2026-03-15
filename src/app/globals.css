@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand: 59 130 246;  /* blue */
+  --brand2: 16 185 129; /* emerald */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  height: 100%;
+  color-scheme: dark;
+  background: #070B16 !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background:
+    radial-gradient(900px 520px at 12% 12%, rgba(var(--brand), .30), transparent 60%),
+    radial-gradient(820px 480px at 88% 8%, rgba(var(--brand2), .24), transparent 55%),
+    #070B16 !important;
+  color: #fff;
 }
+
+* { -webkit-tap-highlight-color: transparent; }
+::selection { background: rgba(var(--brand), .35); }
+a { text-decoration: none; }
