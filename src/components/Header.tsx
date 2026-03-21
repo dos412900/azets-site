@@ -1,24 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
-import { categories } from "@/lib/basmData";
+import { ChevronDown, Menu, Search, X, ArrowRight } from "lucide-react";
+import { categories } from "@/lib/azetsData";
 import { cn } from "@/lib/cn";
 import { DEFAULT_LANG, getDict, isLang, type Lang } from "@/lib/i18n";
 
-export default function Header() {
+interface HeaderProps {
+  lang?: Lang;
+}
+
+export default function Header({ lang: propLang }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const parts = pathname.split("/").filter(Boolean);
-  const lang: Lang = parts[0] && isLang(parts[0]) ? parts[0] : DEFAULT_LANG;
+  // lang comes from [lang]/layout as a prop — fallback to pathname parsing
+  const lang: Lang = propLang ?? (() => {
+    const p = pathname.split("/").filter(Boolean);
+    return (p[0] && isLang(p[0]) ? p[0] : DEFAULT_LANG) as Lang;
+  })();
+
   const d = getDict(lang);
 
   const [mobile, setMobile] = useState(false);
   const [openCat, setOpenCat] = useState(false);
   const [openLang, setOpenLang] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const langRef = useRef<HTMLDivElement | null>(null);
@@ -32,16 +43,16 @@ export default function Header() {
       if (langRef.current && !langRef.current.contains(t)) setOpenLang(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpenCat(false);
-        setOpenLang(false);
-      }
+      if (e.key === "Escape") { setOpenCat(false); setOpenLang(false); }
     };
+    const onScroll = () => setScrolled(window.scrollY > 8);
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", onScroll);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -59,207 +70,391 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/85 backdrop-blur">
-      {/* top info */}
-      <div className="border-b border-slate-200 bg-slate-50">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-xs text-slate-600">
-          <div>bas-m.kz</div>
-          <div className="hidden items-center gap-4 sm:flex">
-            <span>zukhra06@mail.ru</span>
-            <span>+7 (___) ___-__-__</span>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+
+        .hdr-root { font-family: 'DM Sans', sans-serif; }
+
+        /* nav link underline */
+        .hdr-nav-link {
+          position: relative;
+          text-decoration: none;
+          font-size: 14px;
+          color: #5a7080;
+          transition: color 0.2s ease;
+        }
+        .hdr-nav-link::after {
+          content: '';
+          position: absolute; left: 0; bottom: -2px;
+          width: 0; height: 1.5px;
+          background: #0A4A6E;
+          transition: width 0.25s ease;
+        }
+        .hdr-nav-link:hover { color: #0A4A6E; }
+        .hdr-nav-link:hover::after { width: 100%; }
+
+        /* catalog button */
+        .hdr-cat-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-size: 14px; font-weight: 500;
+          color: #0D1F2D;
+          background: #F5F8FA;
+          border: 1px solid #d0dde8;
+          border-radius: 8px;
+          padding: 8px 14px;
+          cursor: pointer;
+          transition: background 0.2s ease, border-color 0.2s ease;
+          white-space: nowrap;
+        }
+        .hdr-cat-btn:hover { background: #E8F4FC; border-color: #93c5e8; }
+        .hdr-cat-btn svg { transition: transform 0.25s ease; }
+        .hdr-cat-btn.open svg { transform: rotate(180deg); }
+
+        /* search */
+        .hdr-search {
+          display: flex; align-items: center; gap: 8px;
+          flex: 1;
+          background: #F5F8FA;
+          border: 1px solid #d0dde8;
+          border-radius: 8px;
+          padding: 8px 12px;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hdr-search.focused {
+          border-color: #0A4A6E;
+          box-shadow: 0 0 0 3px rgba(10,74,110,0.08);
+        }
+        .hdr-search input {
+          background: transparent;
+          border: none;
+          outline: none;
+          font-size: 13px;
+          font-family: 'DM Sans', sans-serif;
+          color: #0D1F2D;
+          width: 100%;
+        }
+        .hdr-search input::placeholder { color: #9aabb8; }
+
+        /* dropdown panel */
+        .hdr-panel {
+          position: absolute; left: 0; top: calc(100% + 10px);
+          width: 720px;
+          background: #fff;
+          border: 1px solid #d0dde8;
+          border-radius: 16px;
+          box-shadow: 0 8px 40px rgba(10,74,110,0.12);
+          overflow: hidden;
+          opacity: 0;
+          transform: translateY(-6px);
+          pointer-events: none;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+          z-index: 100;
+        }
+        .hdr-panel.open {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: all;
+        }
+
+        /* category card inside panel */
+        .hdr-cat-item {
+          border-radius: 10px;
+          border: 1px solid #e8eef4;
+          padding: 14px;
+          background: #F5F8FA;
+          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+          cursor: pointer;
+        }
+        .hdr-cat-item:hover {
+          background: #E8F4FC;
+          border-color: #93c5e8;
+          transform: translateY(-1px);
+        }
+
+        /* lang switcher */
+        .hdr-lang-btn {
+          font-size: 12px; font-weight: 500;
+          color: #5a7080;
+          background: #F5F8FA;
+          border: 1px solid #d0dde8;
+          border-radius: 8px;
+          padding: 7px 12px;
+          cursor: pointer;
+          transition: background 0.2s, border-color 0.2s, color 0.2s;
+          letter-spacing: 0.5px;
+        }
+        .hdr-lang-btn:hover { background: #E8F4FC; border-color: #93c5e8; color: #0A4A6E; }
+
+        .hdr-lang-dropdown {
+          position: absolute; right: 0; top: calc(100% + 8px);
+          width: 100px;
+          background: #fff;
+          border: 1px solid #d0dde8;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(10,74,110,0.10);
+          overflow: hidden;
+          z-index: 100;
+        }
+        .hdr-lang-option {
+          display: block; width: 100%;
+          text-align: left;
+          padding: 9px 16px;
+          font-size: 13px; font-weight: 500;
+          color: #5a7080;
+          background: transparent;
+          border: none; cursor: pointer;
+          transition: background 0.15s, color 0.15s;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .hdr-lang-option:hover { background: #F5F8FA; color: #0A4A6E; }
+
+        /* quote btn */
+        .hdr-quote-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-size: 13px; font-weight: 500;
+          color: #fff;
+          background: #0A4A6E;
+          border: none; border-radius: 8px;
+          padding: 8px 18px;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .hdr-quote-btn:hover {
+          background: #1a6fa0;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 14px rgba(10,74,110,0.22);
+        }
+
+        /* mobile menu */
+        .hdr-mobile {
+          border-top: 1px solid #d0dde8;
+          background: #fff;
+          padding: 20px;
+          display: flex; flex-direction: column; gap: 16px;
+        }
+        .hdr-mobile-link {
+          font-size: 15px; font-weight: 500;
+          color: #0D1F2D;
+          text-decoration: none;
+          padding: 10px 0;
+          border-bottom: 1px solid #f0f4f8;
+          display: block;
+          transition: color 0.2s;
+        }
+        .hdr-mobile-link:hover { color: #0A4A6E; }
+
+        /* topbar */
+        .hdr-topbar {
+          background: #F5F8FA;
+          border-bottom: 1px solid #e8eef4;
+          font-size: 12px;
+          color: #7a8fa0;
+        }
+      `}</style>
+
+      <header
+        className="hdr-root sticky top-0 z-50 bg-white"
+        style={{
+          borderBottom: "1px solid #d0dde8",
+          transition: "box-shadow 0.3s ease",
+          boxShadow: scrolled ? "0 2px 20px rgba(10,74,110,0.09)" : "none",
+        }}
+      >
+        {/* topbar */}
+        <div className="hdr-topbar">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2">
+            <span style={{ color: "#0A4A6E", fontWeight: 500 }}>azets.kz</span>
+            <div className="hidden sm:flex items-center gap-5">
+              <a href="mailto:info@azetscom.com" style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#0A4A6E")}
+                onMouseLeave={e => (e.currentTarget.style.color = "")}
+              >
+                info@azetscom.com
+              </a>
+              <a href="tel:+77019249910" style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#0A4A6E")}
+                onMouseLeave={e => (e.currentTarget.style.color = "")}
+              >
+                +7 (701) 924 9910
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <Link href={`/${lang}`} className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-slate-100 border border-slate-200" />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-slate-900">BAS-M</div>
-            <div className="text-[11px] text-slate-500">medical solutions</div>
-          </div>
-        </Link>
+        {/* main row */}
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
 
-        <div className="ml-2 hidden flex-1 items-center gap-3 md:flex">
-          {/* Catalog dropdown */}
-          <div className="relative" ref={panelRef}>
-            <button
-              onClick={() => setOpenCat((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-800 hover:bg-slate-100"
-            >
-              {d.navCatalog} <ChevronDown className="h-4 w-4 opacity-80" />
-            </button>
+          {/* logo */}
+          <Link href={`/${lang}`} style={{ textDecoration: "none", flexShrink: 0 }}>
+            <Image
+              src="/logoa.png"
+              alt="Azet-S"
+              width={120}
+              height={40}
+              style={{ objectFit: "contain", display: "block" }}
+              priority
+            />
+          </Link>
 
-            <div
-              className={cn(
-                "absolute left-0 mt-3 w-[760px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl",
-                openCat ? "block" : "hidden"
-              )}
-            >
-              <div className="grid grid-cols-3">
-                <div className="col-span-2 p-4">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {cats.map((c) => (
-                      <div
-                        key={c.slug}
-                        className="rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-slate-100"
-                      >
-                        <Link
-                          href={`/${lang}/catalog/${c.slug}`}
-                          onClick={() => setOpenCat(false)}
-                          className="text-sm font-semibold text-slate-900 hover:underline"
-                        >
-                          {c.title}
-                        </Link>
+          {/* desktop row */}
+          <div className="ml-2 hidden flex-1 items-center gap-3 md:flex">
 
-                        {c.children?.length ? (
-                          <div className="mt-2 grid gap-1">
-                            {c.children.map((ch) => (
-                              <Link
-                                key={ch.slug}
-                                href={`/${lang}/catalog/${ch.slug}`}
-                                onClick={() => setOpenCat(false)}
-                                className="text-sm text-slate-600 hover:text-slate-900"
-                              >
-                                {ch.title}
-                              </Link>
-                            ))}
+            {/* catalog dropdown */}
+            <div className="relative" ref={panelRef}>
+              <button
+                className={cn("hdr-cat-btn", openCat && "open")}
+                onClick={() => setOpenCat((v) => !v)}
+              >
+                {d.navCatalog}
+                <ChevronDown style={{ width: 15, height: 15 }} />
+              </button>
+
+              <div className={cn("hdr-panel", openCat && "open")}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 240px" }}>
+                  {/* categories grid */}
+                  <div style={{ padding: "20px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "#00A99D", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 14 }}>
+                      {d.navCatalog}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      {cats.map((c) => (
+                        <div key={c.slug} className="hdr-cat-item">
+                          <Link
+                            href={`/${lang}/catalog/${c.slug}`}
+                            onClick={() => setOpenCat(false)}
+                            style={{ textDecoration: "none", fontSize: 13, fontWeight: 500, color: "#0D1F2D", display: "block", marginBottom: 4 }}
+                          >
+                            {c.title[lang]}
+                          </Link>
+                          <div style={{ fontSize: 12, color: "#7a8fa0", lineHeight: 1.5 }}>
+                            {c.description[lang]}
                           </div>
-                        ) : (
-                          <div className="mt-2 text-xs text-slate-500">
-                            Открыть категорию
-                          </div>
-                        )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* right panel */}
+                  <div style={{ borderLeft: "1px solid #e8eef4", padding: "20px", background: "#F5F8FA", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 500, color: "#00A99D", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 10 }}>
+                        Быстрый запрос
                       </div>
-                    ))}
+                      <div style={{ fontSize: 14, fontWeight: 500, color: "#0D1F2D", marginBottom: 8 }}>{d.btnQuote}</div>
+                      <p style={{ fontSize: 13, color: "#7a8fa0", lineHeight: 1.65, fontWeight: 300 }}>{d.ctaD}</p>
+                    </div>
+                    <Link
+                      href={`/${lang}/contacts`}
+                      onClick={() => setOpenCat(false)}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <button className="hdr-quote-btn" style={{ width: "100%", justifyContent: "center", marginTop: 16 }}>
+                        {d.btnQuote}
+                        <ArrowRight style={{ width: 14, height: 14 }} />
+                      </button>
+                    </Link>
                   </div>
-                </div>
-
-                <div className="border-l border-slate-200 p-5">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Быстрый запрос
-                  </div>
-                  <div className="mt-2 text-slate-900 text-sm font-semibold">
-                    {d.btnQuote}
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {d.ctaD}
-                  </p>
-                  <Link
-                    href={`/${lang}/contacts`}
-                    onClick={() => setOpenCat(false)}
-                    className="mt-4 inline-flex rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 px-4 py-2 text-sm text-white hover:opacity-95"
-                  >
-                    {d.btnQuote}
-                  </Link>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Search */}
-          <form
-            action={`/${lang}/catalog`}
-            className="flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 hover:bg-slate-100"
-          >
-            <Search className="h-4 w-4 text-slate-500" />
-            <input
-              name="q"
-              className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-500 outline-none"
-              placeholder={d.search}
-            />
-          </form>
-
-          {/* Nav */}
-          <nav className="flex items-center gap-5 text-sm text-slate-700">
-            <Link href={`/${lang}/service`} className="hover:text-slate-900">
-              {d.navService}
-            </Link>
-            <Link href={`/${lang}/news`} className="hover:text-slate-900">
-              {d.navNews}
-            </Link>
-            <Link href={`/${lang}/about`} className="hover:text-slate-900">
-              {d.navAbout}
-            </Link>
-            <Link href={`/${lang}/contacts`} className="hover:text-slate-900">
-              {d.navContacts}
-            </Link>
-          </nav>
-
-          {/* Lang switch */}
-          <div className="relative" ref={langRef}>
-            <button
-              onClick={() => setOpenLang((v) => !v)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 hover:bg-slate-100"
+            {/* search */}
+            <form
+              action={`/${lang}/catalog`}
+              className={cn("hdr-search", searchFocused && "focused")}
             >
-              {lang.toUpperCase()} / KZ / EN
-            </button>
+              <Search style={{ width: 15, height: 15, color: "#9aabb8", flexShrink: 0 }} />
+              <input
+                name="q"
+                placeholder={d.search}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+              />
+            </form>
 
-            {openLang ? (
-              <div className="absolute right-0 mt-2 w-36 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                {(["ru", "kz", "en"] as Lang[]).map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={cn(
-                      "w-full px-4 py-3 text-left text-sm hover:bg-slate-50",
-                      l === lang ? "text-slate-900" : "text-slate-700"
-                    )}
-                  >
-                    {l.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            {/* nav links */}
+            <nav style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <Link href={`/${lang}/service`} className="hdr-nav-link">{d.navService}</Link>
+              <Link href={`/${lang}/news`} className="hdr-nav-link">{d.navNews}</Link>
+              <Link href={`/${lang}/about`} className="hdr-nav-link">{d.navAbout}</Link>
+              <Link href={`/${lang}/contacts`} className="hdr-nav-link">{d.navContacts}</Link>
+            </nav>
+
+            {/* lang switcher */}
+            <div className="relative" ref={langRef} style={{ flexShrink: 0 }}>
+              <button className="hdr-lang-btn" onClick={() => setOpenLang((v) => !v)}>
+                {lang.toUpperCase()}
+              </button>
+              {openLang && (
+                <div className="hdr-lang-dropdown">
+                  {(["ru", "kz", "en"] as Lang[]).map((l) => (
+                    <button key={l} className="hdr-lang-option" onClick={() => setLang(l)}>
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* CTA */}
+            <Link href={`/${lang}/contacts`} style={{ textDecoration: "none", flexShrink: 0 }}>
+              <button className="hdr-quote-btn">{d.btnQuote}</button>
+            </Link>
           </div>
+
+          {/* mobile toggle */}
+          <button
+            onClick={() => setMobile((v) => !v)}
+            className="ml-auto md:hidden"
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#0A4A6E", padding: 4 }}
+          >
+            {mobile ? <X style={{ width: 22, height: 22 }} /> : <Menu style={{ width: 22, height: 22 }} />}
+          </button>
         </div>
 
-        {/* Mobile */}
-        <button
-          onClick={() => setMobile((v) => !v)}
-          className="ml-auto inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-2 md:hidden"
-          aria-label="menu"
-        >
-          {mobile ? <X className="h-5 w-5 text-slate-900" /> : <Menu className="h-5 w-5 text-slate-900" />}
-        </button>
-      </div>
+        {/* mobile menu */}
+        {mobile && (
+          <div className="hdr-mobile md:hidden">
+            {/* mobile search */}
+            <form action={`/${lang}/catalog`} className="hdr-search">
+              <Search style={{ width: 15, height: 15, color: "#9aabb8" }} />
+              <input name="q" placeholder={d.search} />
+            </form>
 
-      {mobile ? (
-        <div className="border-t border-slate-200 bg-white md:hidden">
-          <div className="mx-auto grid max-w-6xl gap-2 px-4 py-3 text-sm">
-            <Link href={`/${lang}/catalog`} onClick={() => setMobile(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 hover:bg-slate-100">
-              {d.navCatalog}
-            </Link>
-            <Link href={`/${lang}/service`} onClick={() => setMobile(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 hover:bg-slate-100">
-              {d.navService}
-            </Link>
-            <Link href={`/${lang}/news`} onClick={() => setMobile(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 hover:bg-slate-100">
-              {d.navNews}
-            </Link>
-            <Link href={`/${lang}/about`} onClick={() => setMobile(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 hover:bg-slate-100">
-              {d.navAbout}
-            </Link>
-            <Link href={`/${lang}/contacts`} onClick={() => setMobile(false)} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 hover:bg-slate-100">
-              {d.navContacts}
-            </Link>
+            {/* mobile nav links */}
+            <Link href={`/${lang}/catalog`} className="hdr-mobile-link" onClick={() => setMobile(false)}>{d.navCatalog}</Link>
+            <Link href={`/${lang}/service`} className="hdr-mobile-link" onClick={() => setMobile(false)}>{d.navService}</Link>
+            <Link href={`/${lang}/news`} className="hdr-mobile-link" onClick={() => setMobile(false)}>{d.navNews}</Link>
+            <Link href={`/${lang}/about`} className="hdr-mobile-link" onClick={() => setMobile(false)}>{d.navAbout}</Link>
+            <Link href={`/${lang}/contacts`} className="hdr-mobile-link" onClick={() => setMobile(false)}>{d.navContacts}</Link>
 
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            {/* lang switcher mobile */}
+            <div style={{ display: "flex", gap: 8, paddingTop: 4 }}>
               {(["ru", "kz", "en"] as Lang[]).map((l) => (
                 <button
                   key={l}
-                  onClick={() => setLang(l)}
-                  className={cn(
-                    "rounded-xl border border-slate-200 px-3 py-3 text-xs hover:bg-slate-100",
-                    l === lang ? "bg-slate-100 text-slate-900" : "bg-slate-50 text-slate-700"
-                  )}
+                  className="hdr-lang-btn"
+                  onClick={() => { setLang(l); setMobile(false); }}
+                  style={{ fontWeight: lang === l ? 600 : 400, color: lang === l ? "#0A4A6E" : undefined }}
                 >
                   {l.toUpperCase()}
                 </button>
               ))}
             </div>
+
+            {/* mobile CTA */}
+            <Link href={`/${lang}/contacts`} style={{ textDecoration: "none" }} onClick={() => setMobile(false)}>
+              <button className="hdr-quote-btn" style={{ width: "100%", justifyContent: "center" }}>
+                {d.btnQuote}
+                <ArrowRight style={{ width: 14, height: 14 }} />
+              </button>
+            </Link>
           </div>
-        </div>
-      ) : null}
-    </header>
+        )}
+      </header>
+    </>
   );
 }

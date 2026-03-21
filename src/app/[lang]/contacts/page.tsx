@@ -1,249 +1,292 @@
-import Card from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
-import {
-  Phone,
-  Mail,
-  Clock,
-  MapPin,
-  Send,
-} from "lucide-react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Phone, Mail, Clock, MapPin, Send } from "lucide-react";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
 
-export default function ContactsPage({ params }: { params: { lang: string } }) {
-  const lang: Lang = isLang(params.lang) ? params.lang : DEFAULT_LANG;
+// ─── fade-in on scroll ─────────────────────────────────────────────────────
+function useFadeIn(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
 
-  const t = {
-    ru: {
-      title: "Контакты",
-      subtitle:
-        "Оставьте заявку — подберём комплектацию и подготовим коммерческое предложение.",
-      blocks: {
-        phone: "Телефон",
-        email: "Email",
-        hours: "График",
-        address: "Адрес",
-      },
-      hoursLines: ["Пн–Пт 10:00–19:00", "Сб 11:00–15:00"],
-      addressLines: ["Алматы, Шаляпина Саина", "Казахстан"],
-      formTitle: "Заявка",
-      name: "Имя",
-      phone: "Телефон",
-      email: "Email",
-      org: "Компания / клиника",
-      message: "Комментарий (что нужно подобрать)",
-      btn: "Отправить заявку",
-      note:
-        "Нажимая «Отправить», вы соглашаетесь на обработку персональных данных.",
-    },
-    kz: {
-      title: "Байланыс",
-      subtitle:
-        "Өтінім қалдырыңыз — комплектация ұсынып, коммерциялық ұсыныс дайындаймыз.",
-      blocks: {
-        phone: "Телефон",
-        email: "Email",
-        hours: "Жұмыс уақыты",
-        address: "Мекенжай",
-      },
-      hoursLines: ["Дс–Жм 10:00–19:00", "Сн 11:00–15:00"],
-      addressLines: ["Алматы, Шаляпина Саина", "Қазақстан"],
-      formTitle: "Өтінім",
-      name: "Аты-жөні",
-      phone: "Телефон",
-      email: "Email",
-      org: "Компания / клиника",
-      message: "Комментарий (не таңдау керек)",
-      btn: "Өтінім жіберу",
-      note:
-        "«Жіберу» батырмасын басу арқылы деректерді өңдеуге келісесіз.",
-    },
-    en: {
-      title: "Contacts",
-      subtitle:
-        "Leave a request — we’ll suggest a configuration and prepare a quote.",
-      blocks: {
-        phone: "Phone",
-        email: "Email",
-        hours: "Hours",
-        address: "Address",
-      },
-      hoursLines: ["Mon–Fri 10:00–19:00", "Sat 11:00–15:00"],
-      addressLines: ["Almaty, Shalyapina–Saina", "Kazakhstan"],
-      formTitle: "Request",
-      name: "Name",
-      phone: "Phone",
-      email: "Email",
-      org: "Company / clinic",
-      message: "Message (what do you need?)",
-      btn: "Send request",
-      note:
-        "By clicking “Send”, you consent to processing of personal data.",
-    },
-  }[lang];
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, visible } = useFadeIn();
+  return (
+    <div ref={ref} className={className} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(18px)",
+      transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// ─── translations ──────────────────────────────────────────────────────────
+const translations = {
+  ru: {
+    kicker: "Свяжитесь с нами",
+    title: "Контакты",
+    subtitle: "Оставьте заявку — подберём комплектацию и подготовим коммерческое предложение.",
+    blocks: { phone: "Телефон", email: "Email", hours: "График", address: "Адрес" },
+    hoursLines: ["Пн–Пт 10:00–19:00", "Сб 11:00–15:00"],
+    addressLines: ["Алматы, Шаляпина Саина", "Казахстан"],
+    formTitle: "Оставить заявку",
+    formSub: "Опишите задачу — ответим в течение рабочего дня.",
+    name: "Имя", phone: "Телефон", email: "Email", org: "Компания / клиника",
+    message: "Комментарий (что нужно подобрать)",
+    btn: "Отправить заявку",
+    note: "Нажимая «Отправить», вы соглашаетесь на обработку персональных данных.",
+    nav: ["Каталог", "Услуги", "О компании", "Контакты"],
+  },
+  kz: {
+    kicker: "Бізбен байланысыңыз",
+    title: "Байланыс",
+    subtitle: "Өтінім қалдырыңыз — комплектация ұсынып, коммерциялық ұсыныс дайындаймыз.",
+    blocks: { phone: "Телефон", email: "Email", hours: "Жұмыс уақыты", address: "Мекенжай" },
+    hoursLines: ["Дс–Жм 10:00–19:00", "Сн 11:00–15:00"],
+    addressLines: ["Алматы, Шаляпина Саина", "Қазақстан"],
+    formTitle: "Өтінім қалдыру",
+    formSub: "Міндетті жазыңыз — жұмыс күні ішінде жауап береміз.",
+    name: "Аты-жөні", phone: "Телефон", email: "Email", org: "Компания / клиника",
+    message: "Комментарий (не таңдау керек)",
+    btn: "Өтінім жіберу",
+    note: "«Жіберу» батырмасын басу арқылы деректерді өңдеуге келісесіз.",
+    nav: ["Каталог", "Қызметтер", "Компания туралы", "Байланыс"],
+  },
+  en: {
+    kicker: "Get in touch",
+    title: "Contacts",
+    subtitle: "Leave a request — we'll suggest a configuration and prepare a quote.",
+    blocks: { phone: "Phone", email: "Email", hours: "Hours", address: "Address" },
+    hoursLines: ["Mon–Fri 10:00–19:00", "Sat 11:00–15:00"],
+    addressLines: ["Almaty, Shalyapina–Saina", "Kazakhstan"],
+    formTitle: "Leave a request",
+    formSub: "Describe your task — we'll reply within one business day.",
+    name: "Name", phone: "Phone", email: "Email", org: "Company / clinic",
+    message: "Message (what do you need?)",
+    btn: "Send request",
+    note: "By clicking Send, you consent to processing of personal data.",
+    nav: ["Catalog", "Services", "About", "Contacts"],
+  },
+} as const;
+
+type TKey = keyof typeof translations;
+
+// ─── page ──────────────────────────────────────────────────────────────────
+export default function ContactsPage({ params }: { params: { lang: string } }) {
+  const { lang } = params;
+  const currentLang: Lang = isLang(lang) ? lang : DEFAULT_LANG;
+  const t = translations[currentLang as TKey] ?? translations.ru;
+
+  const [heroVisible, setHeroVisible] = useState(false);
+  useEffect(() => { const timer = setTimeout(() => setHeroVisible(true), 80); return () => clearTimeout(timer); }, []);
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
 
   return (
-    <div className="bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight">{t.title}</h1>
-          <p className="max-w-2xl text-sm leading-7 text-slate-600">
-            {t.subtitle}
-          </p>
+    <div className="bg-[#F5F8FA] text-[#0D1F2D] min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        .nav-link { position: relative; text-decoration: none; }
+        .nav-link::after {
+          content: ''; position: absolute; left: 0; bottom: -2px;
+          width: 0; height: 1.5px; background: #0A4A6E;
+          transition: width 0.25s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        .info-card {
+          transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .info-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(10,74,110,0.09);
+          border-color: #93c5e8 !important;
+        }
+
+        .form-input {
+          width: 100%;
+          background: #F5F8FA;
+          border: 1px solid #d0dde8;
+          border-radius: 10px;
+          padding: 11px 16px;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          color: #0D1F2D;
+          outline: none;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          margin-top: 6px;
+        }
+        .form-input:focus {
+          border-color: #0A4A6E;
+          box-shadow: 0 0 0 3px rgba(10,74,110,0.08);
+        }
+        .form-input::placeholder { color: #9aabb8; }
+
+        .form-label {
+          font-size: 12px;
+          font-weight: 500;
+          color: #5a7080;
+          letter-spacing: 0.3px;
+        }
+
+        @keyframes pulse-icon {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.08); }
+        }
+        .icon-wrap:hover { animation: pulse-icon 0.4s ease; }
+
+        @keyframes shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .btn-submit:hover {
+          background: linear-gradient(90deg, #0A4A6E 30%, #1a6fa0 50%, #0A4A6E 70%);
+          background-size: 200% auto;
+          animation: shimmer 1.4s linear infinite;
+        }
+      `}</style>
+
+      
+
+      <div className="max-w-6xl mx-auto px-8 py-16">
+
+        {/* HEADER */}
+        <div className="mb-12">
+          <div
+            style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(18px)", transition: "opacity 0.6s ease 0ms, transform 0.6s ease 0ms" }}
+          >
+            <span className="inline-block bg-[#E8F4FC] text-[#1a6fa0] text-[12px] font-medium tracking-[1.5px] uppercase px-4 py-1.5 rounded-full mb-5">
+              {t.kicker}
+            </span>
+          </div>
+          <div
+            style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(18px)", transition: "opacity 0.6s ease 100ms, transform 0.6s ease 100ms" }}
+          >
+            <h1 className="font-serif text-[44px] font-bold leading-[1.15] mb-4">{t.title}</h1>
+            <p className="text-[16px] text-[#5a7080] font-light leading-[1.75] max-w-xl">{t.subtitle}</p>
+          </div>
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-12">
-          {/* LEFT: CONTACT CARDS */}
-          <div className="lg:col-span-5">
-            <Card className="p-6">
-              <div className="grid gap-4">
-                <InfoRow icon={<Phone className="h-5 w-5" />} title={t.blocks.phone}>
-                  <a className="font-semibold text-slate-900 hover:underline" href="tel:+77019249910">
-                    +7 (701) 924 9910
-                  </a>
-                </InfoRow>
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
 
-                <Divider />
-
-                <InfoRow icon={<Mail className="h-5 w-5" />} title={t.blocks.email}>
-                  <a className="font-semibold text-slate-900 hover:underline" href="mailto:zukhra06@mail.ru">
-                    zukhra06@mail.ru
-                  </a>
-                </InfoRow>
-
-                <Divider />
-
-                <InfoRow icon={<Clock className="h-5 w-5" />} title={t.blocks.hours}>
-                  <div className="text-sm text-slate-700">
-                    {t.hoursLines.map((x) => (
-                      <div key={x}>{x}</div>
-                    ))}
+          {/* LEFT — info blocks */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            {[
+              {
+                icon: <Phone className="h-5 w-5 stroke-[#0A4A6E] fill-none" />,
+                label: t.blocks.phone,
+                content: <a className="text-[15px] font-medium text-[#0A4A6E] hover:underline no-underline" href="tel:+77019249910">+7 (701) 924 9910</a>,
+                delay: 150,
+              },
+              {
+                icon: <Mail className="h-5 w-5 stroke-[#0A4A6E] fill-none" />,
+                label: t.blocks.email,
+                content: <a className="text-[15px] font-medium text-[#0A4A6E] hover:underline no-underline" href="mailto:info@azetscom.com">info@azetscom.com</a>,
+                delay: 220,
+              },
+              {
+                icon: <Clock className="h-5 w-5 stroke-[#0A4A6E] fill-none" />,
+                label: t.blocks.hours,
+                content: <div className="flex flex-col gap-0.5">{t.hoursLines.map(x => <span key={x} className="text-[15px] font-medium">{x}</span>)}</div>,
+                delay: 290,
+              },
+              {
+                icon: <MapPin className="h-5 w-5 stroke-[#0A4A6E] fill-none" />,
+                label: t.blocks.address,
+                content: <div className="flex flex-col gap-0.5">{t.addressLines.map(x => <span key={x} className="text-[15px] font-medium">{x}</span>)}</div>,
+                delay: 360,
+              },
+            ].map(({ icon, label, content, delay }) => (
+              <FadeIn key={label} delay={delay}>
+                <div className="info-card bg-white border border-[#d0dde8] rounded-xl p-5 flex items-start gap-4">
+                  <div className="icon-wrap w-10 h-10 bg-[#E8F4FC] rounded-xl flex items-center justify-center flex-shrink-0">
+                    {icon}
                   </div>
-                </InfoRow>
-
-                <Divider />
-
-                <InfoRow icon={<MapPin className="h-5 w-5" />} title={t.blocks.address}>
-                  <div className="text-sm text-slate-700">
-                    {t.addressLines.map((x) => (
-                      <div key={x}>{x}</div>
-                    ))}
+                  <div>
+                    <div className="text-[11px] font-medium text-[#00A99D] tracking-[1.4px] uppercase mb-1">{label}</div>
+                    {content}
                   </div>
-                </InfoRow>
-              </div>
-            </Card>
-
-            {/* optional map placeholder */}
-            <Card className="mt-6 overflow-hidden">
-              <div className="h-[220px] bg-gradient-to-br from-slate-100 to-slate-200" />
-              <div className="p-4 text-xs text-slate-600">
-                Карта (можем подключить 2GIS/Google Maps позже)
-              </div>
-            </Card>
+                </div>
+              </FadeIn>
+            ))}
           </div>
 
-          {/* RIGHT: FORM */}
-          <div className="lg:col-span-7">
-            <Card className="p-6">
-              <div className="text-sm font-semibold text-slate-900">{t.formTitle}</div>
+          {/* RIGHT — form */}
+          <FadeIn delay={200} className="lg:col-span-7">
+            <div className="bg-white border border-[#d0dde8] rounded-2xl p-8"
+              style={{ boxShadow: "0 4px 32px rgba(10,74,110,0.06)" }}
+            >
+              <div className="mb-6">
+                <div className="text-[12px] font-medium text-[#00A99D] tracking-[1.8px] uppercase mb-2">{t.formTitle}</div>
+                <p className="text-[13px] text-[#5a7080] font-light">{t.formSub}</p>
+              </div>
 
-              <form className="mt-4 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t.name} placeholder={t.name} />
-                  <Field label={t.phone} placeholder="+7 (___) ___-__-__" />
+              <div className="grid gap-5">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <FormField label={t.name} placeholder={t.name} />
+                  <FormField label={t.phone} placeholder="+7 (701) 924 99 10" type="tel" />
                 </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t.email} placeholder="name@email.com" type="email" />
-                  <Field label={t.org} placeholder={t.org} />
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <FormField label={t.email} placeholder="name@email.com" type="email" />
+                  <FormField label={t.org} placeholder={t.org} />
                 </div>
-
                 <div>
-                  <label className="text-xs font-semibold text-slate-700">{t.message}</label>
+                  <label className="form-label">{t.message}</label>
                   <textarea
-                    className="mt-2 h-36 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:border-slate-300 focus:ring-4 focus:ring-slate-100"
+                    className="form-input"
                     placeholder={t.message}
+                    rows={5}
+                    style={{ resize: "none", marginTop: "6px" }}
                   />
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="text-xs text-slate-500">{t.note}</div>
-                  <Button variant="primary" className="w-full sm:w-auto" href={`/${lang}/contacts`}>
-                    <span className="inline-flex items-center gap-2">
-                      <Send className="h-4 w-4" />
-                      {t.btn}
-                    </span>
-                  </Button>
+                <div>
+                  <button
+                    className="btn-submit w-full flex items-center justify-center gap-2 bg-[#0A4A6E] text-white text-[14px] font-medium px-7 py-3.5 rounded-xl"
+                    style={{ transition: "transform 0.15s ease, box-shadow 0.2s ease" }}
+                    onMouseEnter={e => { const b = e.currentTarget; b.style.transform = "translateY(-1px)"; b.style.boxShadow = "0 4px 16px rgba(10,74,110,0.25)"; }}
+                    onMouseLeave={e => { const b = e.currentTarget; b.style.transform = ""; b.style.boxShadow = ""; }}
+                  >
+                    <Send className="h-4 w-4" />
+                    {t.btn}
+                  </button>
+                  <p className="text-[11px] text-[#9aabb8] mt-3 text-center leading-[1.6]">{t.note}</p>
                 </div>
-              </form>
-            </Card>
-
-            {/* trust row */}
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              <MiniStat title="Ответим быстро" desc="Обычно в течение дня" />
-              <MiniStat title="КП прозрачно" desc="Спецификация + варианты" />
-              <MiniStat title="Поддержка" desc="Внедрение и сервис" />
+              </div>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </div>
     </div>
   );
 }
 
-function Divider() {
-  return <div className="h-px w-full bg-slate-200" />;
-}
-
-function InfoRow({
-  icon,
-  title,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-          {title}
-        </div>
-        <div className="mt-1">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  placeholder,
-  type = "text",
-}: {
-  label: string;
-  placeholder?: string;
-  type?: string;
-}) {
+function FormField({ label, placeholder, type = "text" }: { label: string; placeholder?: string; type?: string }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-slate-700">{label}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:ring-4 focus:ring-slate-100"
-      />
-    </div>
-  );
-}
-
-function MiniStat({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <div className="text-sm font-semibold text-slate-900">{title}</div>
-      <div className="mt-1 text-sm text-slate-600">{desc}</div>
+      <label className="form-label">{label}</label>
+      <input type={type} placeholder={placeholder} className="form-input" />
     </div>
   );
 }

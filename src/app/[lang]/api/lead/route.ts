@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+// src/app/[lang]/api/lead/route.ts
+import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
@@ -13,7 +14,10 @@ export async function POST(req: Request) {
     const message = String(body?.message || "").trim();
 
     if (!name || !phone) {
-      return NextResponse.json({ ok: false, error: "name/phone required" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "name/phone required" },
+        { status: 400 }
+      );
     }
 
     const to = process.env.LEADS_TO_EMAIL!;
@@ -36,12 +40,13 @@ export async function POST(req: Request) {
       to,
       subject,
       html,
-      replyTo: email || undefined, // чтобы “Ответить” отвечало клиенту
+      replyTo: email || undefined,
     });
 
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false }, { status: 500 });
+  } catch (err) {
+    console.error("Lead API error:", err);
+    return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
 

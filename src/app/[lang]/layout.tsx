@@ -2,19 +2,19 @@ import type { ReactNode } from "react";
 import Header from "@/components/Header";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
 
-export default function LangLayout({
-  children,
-  params,
-}: {
+type Props = {
   children: ReactNode;
-  params: { lang: string };
-}) {
-  // безопасно: не даём 404 из-за кривого lang
-  const lang: Lang = isLang(params.lang) ? (params.lang as Lang) : DEFAULT_LANG;
+  params: Promise<{ lang: string }>;
+};
+
+export default async function LangLayout({ children, params }: Props) {
+  const { lang: rawLang } = await params;
+
+  const lang: Lang = isLang(rawLang) ? (rawLang as Lang) : DEFAULT_LANG;
 
   return (
     <>
-      <Header />
+      <Header lang={lang} />
       <main>{children}</main>
     </>
   );

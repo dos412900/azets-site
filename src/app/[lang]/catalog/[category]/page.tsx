@@ -1,35 +1,56 @@
 import Link from "next/link";
-import { getCategory, getProductsByCategory, flatCategories } from "@/lib/basmData";
-import { notFound } from "next/navigation";
+import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
+import { categories, products } from "@/lib/azetsData";
 
-export function generateStaticParams() {
-  return flatCategories.map((c) => ({ category: c.slug }));
-}
+type SearchParams = {
+  [key: string]: string | string[] | undefined;
+};
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
-  const cat = getCategory(params.category);
-  if (!cat) return notFound();
-
-  const list = getProductsByCategory(params.category);
+export default function CatalogPage({
+  params,
+}: {
+  params: { lang: string };
+}) {
+  const lang: Lang = isLang(params.lang)
+    ? (params.lang as Lang)
+    : DEFAULT_LANG;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">{cat.title}</h1>
+      <h1 className="text-2xl font-semibold mb-6">
+        Каталог
+      </h1>
 
-      {list.length === 0 ? (
-        <div className="mt-4 rounded-2xl border bg-white p-6 text-sm text-slate-600">
-          Пока нет товаров в этой категории. Добавь позиции в <b>src/lib/basmData.ts</b>.
-        </div>
-      ) : (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((p) => (
-            <Link key={p.slug} href={`/product/${p.slug}`} className="rounded-2xl border bg-white p-5 shadow-sm">
-              <div className="text-base font-semibold">{p.title}</div>
-              <div className="mt-2 text-sm text-slate-600">{p.short}</div>
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* категории */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {categories.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/${lang}/catalog/${c.slug}`}
+            className="rounded-full border bg-white px-4 py-2 text-sm hover:bg-slate-100"
+          >
+            {c.title[lang]}
+          </Link>
+        ))}
+      </div>
+
+      {/* товары */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {products.map((p) => (
+          <Link
+            key={p.slug}
+            href={`/${lang}/product/${p.slug}`}
+            className="rounded-2xl border bg-white p-5 shadow-sm hover:shadow-md transition"
+          >
+            <div className="text-base font-semibold">
+              {typeof p.title === "object" ? p.title[lang] : p.title}
+            </div>
+            <div className="mt-2 text-sm text-slate-600">
+              {typeof p.short === "object" ? p.short[lang] : p.short}
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

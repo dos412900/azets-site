@@ -1,8 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --brand: 59 130 246;  /* blue */
-  --brand2: 16 185 129; /* emerald */
+  --brand: 20 184 166;
+  --brand2: 45 212 191;
 }
 
 html {

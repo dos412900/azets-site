@@ -1,4 +1,4 @@
-import { getProduct, products } from "@/lib/basmData";
+import { getProduct, products } from "@/lib/azetsData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
