@@ -17,11 +17,13 @@ export default function Header({ lang: propLang }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // lang comes from [lang]/layout as a prop — fallback to pathname parsing
-  const lang: Lang = propLang ?? (() => {
+  // Derive lang: prefer prop, then pathname, then default
+  // Use useMemo to keep it stable across renders
+  const lang: Lang = useMemo(() => {
+    if (propLang) return propLang;
     const p = pathname.split("/").filter(Boolean);
     return (p[0] && isLang(p[0]) ? p[0] : DEFAULT_LANG) as Lang;
-  })();
+  }, [propLang, pathname]);
 
   const d = getDict(lang);
 
