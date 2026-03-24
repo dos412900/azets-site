@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ArrowRight, Shield, GraduationCap, Wrench } from "lucide-react";
 import { categories } from "@/lib/azetsData";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
@@ -248,9 +249,12 @@ function FeatureIcon({ name }: { name: string }) {
 }
 
 // ─── page ──────────────────────────────────────────────────────────────────
-export default function HomePage({ params }: { params: { lang: string } }) {
-  const { lang } = params;
-  const currentLang: Lang = isLang(lang) ? lang : DEFAULT_LANG;
+export default function HomePage() {
+  const pathname = usePathname();
+  const langFromPath = pathname.split("/").filter(Boolean)[0];
+  const currentLang: Lang = isLang(langFromPath) ? langFromPath : DEFAULT_LANG;
+  const lang = currentLang;
+
   const t = translations[currentLang as TranslationKey] ?? translations.ru;
   const topCats = (categories ?? []).slice(0, 6);
 
@@ -318,14 +322,11 @@ export default function HomePage({ params }: { params: { lang: string } }) {
         .scroll-indicator { animation: bounce 1.8s ease-in-out infinite; }
       `}</style>
 
-      
-
       <div className="max-w-6xl mx-auto px-8">
 
         {/* HERO */}
         <section className="max-w-3xl py-20">
           <div>
-            {/* staggered hero entrance */}
             {[
               <span key="kicker" className="inline-block bg-[#E8F4FC] text-[#1a6fa0] text-[12px] font-medium tracking-[1.5px] uppercase px-4 py-1.5 rounded-full mb-6">
                 {t.kicker}
@@ -389,7 +390,6 @@ export default function HomePage({ params }: { params: { lang: string } }) {
               ))}
             </div>
           </div>
-
         </section>
 
         {/* scroll hint */}
@@ -434,7 +434,7 @@ export default function HomePage({ params }: { params: { lang: string } }) {
               <FadeIn key={c.slug} delay={i * 60}>
                 <Link href={`/${lang}/catalog/${c.slug}`} className="no-underline block">
                   <div className="cat-card bg-white border border-[#d0dde8] rounded-xl p-5 flex items-center justify-between hover:border-[#1a6fa0]">
-                    <span className="text-[14px] font-medium">{c.title[currentLang as Lang] ?? c.title[DEFAULT_LANG]}</span>
+                    <span className="text-[14px] font-medium">{c.title[currentLang] ?? c.title[DEFAULT_LANG]}</span>
                     <ArrowRight className="cat-arrow h-4 w-4 text-[#5a7080]" />
                   </div>
                 </Link>
