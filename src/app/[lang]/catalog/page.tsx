@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Search, Package } from "lucide-react";
 import { categories, products } from "@/lib/azetsData";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
@@ -88,11 +89,8 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
 
         .cat-pill {
           font-size: 13px; font-weight: 400;
-          padding: 7px 16px;
-          border-radius: 20px;
-          border: 1px solid #d0dde8;
-          background: #fff;
-          color: #5a7080;
+          padding: 7px 16px; border-radius: 20px;
+          border: 1px solid #d0dde8; background: #fff; color: #5a7080;
           text-decoration: none;
           transition: background 0.2s, border-color 0.2s, color 0.2s;
           white-space: nowrap;
@@ -101,12 +99,8 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
         .cat-pill.active { background: #0A4A6E; border-color: #0A4A6E; color: #fff; font-weight: 500; }
 
         .product-card {
-          background: #fff;
-          border: 1px solid #d0dde8;
-          border-radius: 12px;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
+          background: #fff; border: 1px solid #d0dde8; border-radius: 12px;
+          overflow: hidden; display: flex; flex-direction: column;
           transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
         }
         .product-card:hover {
@@ -115,25 +109,38 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
           border-color: #93c5e8;
         }
 
+        .product-img-wrap {
+          width: 100%; aspect-ratio: 4/3;
+          background: #F0F5FA;
+          display: flex; align-items: center; justify-content: center;
+          overflow: hidden; flex-shrink: 0;
+        }
+        .product-img-wrap img {
+          width: 100%; height: 100%;
+          object-fit: contain; padding: 16px;
+        }
+        .product-img-placeholder {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          gap: 8px; color: #b0c4d4; width: 100%; height: 100%;
+        }
+
+        .product-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+
         .spec-row { display: flex; gap: 8px; font-size: 12px; color: #5a7080; }
         .spec-key { color: #9aabb8; }
 
         .detail-btn {
           display: inline-flex; align-items: center; gap: 5px;
-          font-size: 13px; font-weight: 500;
-          color: #0A4A6E;
-          text-decoration: none;
-          transition: gap 0.2s ease;
+          font-size: 13px; font-weight: 500; color: #0A4A6E;
+          text-decoration: none; transition: gap 0.2s ease;
         }
         .detail-btn:hover { gap: 8px; }
 
         .search-wrap {
           display: flex; align-items: center; gap: 8px;
-          background: #fff;
-          border: 1px solid #d0dde8;
-          border-radius: 10px;
-          padding: 10px 16px;
-          max-width: 420px;
+          background: #fff; border: 1px solid #d0dde8;
+          border-radius: 10px; padding: 10px 16px; max-width: 420px;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
         .search-wrap:focus-within {
@@ -150,10 +157,8 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
         .req-btn {
           font-size: 12px; font-weight: 500;
           color: #fff; background: #0A4A6E;
-          border-radius: 8px;
-          padding: 6px 14px;
-          text-decoration: none;
-          transition: background 0.2s ease;
+          border-radius: 8px; padding: 6px 14px;
+          text-decoration: none; transition: background 0.2s ease;
           font-family: 'DM Sans', sans-serif;
         }
         .req-btn:hover { background: #1a6fa0; }
@@ -161,12 +166,9 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
         .cta-btn {
           background: #fff; color: #0A4A6E;
           font-size: 14px; font-weight: 500;
-          padding: 14px 32px; border-radius: 12px;
-          border: none; cursor: pointer;
-          display: inline-flex; align-items: center; gap: 8px;
-          white-space: nowrap;
-          font-family: 'DM Sans', sans-serif;
-          text-decoration: none;
+          padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer;
+          display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+          font-family: 'DM Sans', sans-serif; text-decoration: none;
           transition: background 0.2s ease, transform 0.15s ease;
         }
         .cta-btn:hover { background: #E8F4FC; transform: translateY(-1px); }
@@ -184,7 +186,6 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
               <h1 className="font-serif text-[44px] font-bold leading-[1.15] mb-3">{tr.title}</h1>
               <p className="text-[15px] text-[#5a7080] font-light leading-[1.7] max-w-xl">{tr.subtitle}</p>
             </div>
-            {/* search */}
             <form action={`/${lang}/catalog`} className="search-wrap">
               <Search style={{ width: 16, height: 16, color: "#9aabb8", flexShrink: 0 }} />
               <input name="q" defaultValue={q} placeholder={tr.searchPlaceholder} />
@@ -194,18 +195,11 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
 
         {/* category pills */}
         <div className="flex flex-wrap gap-2 mb-10">
-          <Link
-            href={`/${lang}/catalog`}
-            className={`cat-pill${!activeCat && !q ? " active" : ""}`}
-          >
+          <Link href={`/${lang}/catalog`} className={`cat-pill${!activeCat && !q ? " active" : ""}`}>
             {tr.all}
           </Link>
           {categories.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/${lang}/catalog?cat=${c.slug}`}
-              className={`cat-pill${activeCat === c.slug ? " active" : ""}`}
-            >
+            <Link key={c.slug} href={`/${lang}/catalog?cat=${c.slug}`} className={`cat-pill${activeCat === c.slug ? " active" : ""}`}>
               {c.title[lang]}
             </Link>
           ))}
@@ -224,37 +218,58 @@ export default async function CatalogPage({ params, searchParams }: PageProps) {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
             {list.map((p) => (
               <div key={p.slug} className="product-card">
-                {/* brand badge */}
-                {p.brand && (
-                  <span className="inline-block bg-[#E8F4FC] text-[#0A4A6E] text-[11px] font-medium px-2.5 py-1 rounded-full mb-4 self-start">
-                    {p.brand}
-                  </span>
-                )}
 
-                <h3 className="text-[15px] font-medium leading-[1.4] mb-2">{p.title}</h3>
-                <p className="text-[13px] text-[#5a7080] leading-[1.65] font-light flex-1 mb-4">{p.short}</p>
-
-                {/* specs */}
-                {p.specs && p.specs.length > 0 && (
-                  <div className="flex flex-col gap-1.5 mb-5 pt-4 border-t border-[#f0f4f8]">
-                    {p.specs.map((s) => (
-                      <div key={s.k} className="spec-row">
-                        <span className="spec-key">{s.k}:</span>
-                        <span>{s.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* actions */}
-                <div className="flex items-center justify-between pt-4 border-t border-[#f0f4f8] mt-auto">
-                  <Link href={`/${lang}/product/${p.slug}`} className="detail-btn">
-                    {tr.detailBtn} <ArrowRight style={{ width: 13, height: 13 }} />
-                  </Link>
-                  <Link href={`/${lang}/contacts`} className="req-btn">
-                    {tr.requestBtn}
-                  </Link>
+                {/* image */}
+                <div className="product-img-wrap">
+                  {p.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.image} alt={p.title} />
+                  ) : (
+                    <div className="product-img-placeholder">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8M12 17v4"/>
+                        <circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <span style={{ fontSize: 11, letterSpacing: "0.5px", textTransform: "uppercase" }}>
+                        {p.brand ?? "Фото"}
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                {/* body */}
+                <div className="product-body">
+                  {p.brand && (
+                    <span className="inline-block bg-[#E8F4FC] text-[#0A4A6E] text-[11px] font-medium px-2.5 py-1 rounded-full mb-3 self-start">
+                      {p.brand}
+                    </span>
+                  )}
+
+                  <h3 className="text-[15px] font-medium leading-[1.4] mb-2">{p.title}</h3>
+                  <p className="text-[13px] text-[#5a7080] leading-[1.65] font-light flex-1 mb-4">{p.short}</p>
+
+                  {p.specs && p.specs.length > 0 && (
+                    <div className="flex flex-col gap-1.5 mb-5 pt-4 border-t border-[#f0f4f8]">
+                      {p.specs.slice(0, 3).map((s) => (
+                        <div key={s.k} className="spec-row">
+                          <span className="spec-key">{s.k}:</span>
+                          <span>{s.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#f0f4f8] mt-auto">
+                    <Link href={`/${lang}/product/${p.slug}`} className="detail-btn">
+                      {tr.detailBtn} <ArrowRight style={{ width: 13, height: 13 }} />
+                    </Link>
+                    <Link href={`/${lang}/contacts`} className="req-btn">
+                      {tr.requestBtn}
+                    </Link>
+                  </div>
+                </div>
+
               </div>
             ))}
           </div>
