@@ -94,7 +94,7 @@ export const categories: Category[] = [
       en: "Surgical microscopes and modules for ophthalmic surgery",
     },
   },
-  {
+    {
     slug: "ophthalmic-consumables",
     title: {
       ru: "Расходные материалы и аксессуары",
@@ -105,6 +105,72 @@ export const categories: Category[] = [
       ru: "Столики, принтеры и сопутствующее оборудование",
       kz: "Үстелдер, принтерлер және қосымша жабдықтар",
       en: "Tables, printers and auxiliary equipment",
+    },
+  },
+
+  {
+    slug: "airseal-insufflation",
+    title: {
+      ru: "AirSeal® Insufflation",
+      kz: "AirSeal® инсуффляция жүйелері",
+      en: "AirSeal® Insufflation",
+    },
+    description: {
+      ru: "Системы инсуффляции AirSeal®",
+      kz: "AirSeal® инсуффляция жүйелері",
+      en: "AirSeal® Insufflation Systems",
+    },
+  },
+  {
+    slug: "electrosurgical-units",
+    title: {
+      ru: "Электрохирургические аппараты (ESU)",
+      kz: "Электрохирургиялық аппараттар (ESU)",
+      en: "Electrosurgical Units (ESUs)",
+    },
+    description: {
+      ru: "Электрохирургические генераторы",
+      kz: "Электрохирургиялық генераторлар",
+      en: "Electrosurgical Units",
+    },
+  },
+  {
+    slug: "smoke-evacuation",
+    title: {
+      ru: "Системы дымоудаления",
+      kz: "Түтінді жою жүйелері",
+      en: "Smoke Evacuation",
+    },
+    description: {
+      ru: "Системы удаления хирургического дыма",
+      kz: "Хирургиялық түтінді жою жүйелері",
+      en: "Smoke Evacuation Systems",
+    },
+  },
+  {
+    slug: "general-surgical-instruments",
+    title: {
+      ru: "Хирургические инструменты",
+      kz: "Хирургиялық құралдар",
+      en: "Surgical & Medical Instruments",
+    },
+    description: {
+      ru: "Общие и лапароскопические хирургические инструменты",
+      kz: "Жалпы және лапароскопиялық хирургиялық құралдар",
+      en: "Surgical & Medical Instruments",
+    },
+  },
+  {
+    slug: "surgical-imaging",
+    title: {
+      ru: "Хирургическая визуализация",
+      kz: "Хирургиялық бейнелеу",
+      en: "Surgical Imaging",
+    },
+    description: {
+      ru: "Камеры и системы хирургической визуализации",
+      kz: "Хирургиялық бейнелеу жүйелері",
+      en: "Surgical Imaging Systems",
     },
   },
 ];
@@ -409,7 +475,358 @@ export const products: Product[] = [
       { k: "Тип", v: "видеоделитель + цифровая камера" },
     ],
   },
+  {
+  slug: "airseal-ifs-system",
+  image: "/products/airseal-ifs-system.jpg",
+  title: "AirSeal® iFS System",
+  brand: "CONMED",
+  category: "airseal-insufflation",
+  note: "Новинка",
+  short: "Интеллектуальная система клинической инсуффляции для лапароскопической и роботизированной хирургии.",
+  specs: [
+    { k: "Производитель", v: "CONMED Corporation, США" },
+    { k: "Тип", v: "Инсуффляционная система CO₂" },
+    { k: "Применение", v: "Лапароскопия, роботизированная хирургия" },
+    { k: "Особенности", v: "Стабильный пневмоперитонеум, активная эвакуация дыма, безклапанная технология" },
+    { k: "Гарантия", v: "12 месяцев" },
+  ],
+},
+{
+  slug: "airseal-filter-tubing-3-channel",
+  image: "/products/airseal-filter-tubing-3-channel.jpg",
+  title: "AirSeal® 3-Channel Filtered Tube Set",
+  brand: "CONMED",
+  category: "airseal-insufflation",
+  note: "",
+  short: "Комплект трехканальных фильтрующих трубок для системы AirSeal iFS.",
+  specs: [
+    { k: "Назначение", v: "Для AirSeal® iFS" },
+    { k: "Тип", v: "Трехканальный" },
+    { k: "Комплектация", v: "6 шт." },
+  ],
+},
+{
+  slug: "airseal-filter-tubing-single",
+  image: "/products/airseal-filter-tubing-single.jpg",
+  title: "AirSeal® Single Channel Filtered Tube Set",
+  brand: "CONMED",
+  category: "airseal-insufflation",
+  note: "",
+  short: "Одноканальный фильтрованный комплект трубок.",
+  specs: [
+    { k: "Назначение", v: "Для AirSeal® iFS" },
+    { k: "Тип", v: "Одноканальный" },
+    { k: "Комплектация", v: "10 шт." },
+  ],
+},
+{
+  slug: "airseal-5mm-access-port",
+  image: "/products/airseal-5mm-access-port.jpg",
+  title: "AirSeal® 5 mm Access Port",
+  brand: "CONMED",
+  category: "airseal-insufflation",
+  note: "",
+  short: "5-миллиметровый порт доступа с низкопрофильным обтуратором.",
+  specs: [
+    { k: "Диаметр", v: "5 мм" },
+    { k: "Тип", v: "Valve-Free Access" },
+    { k: "Комплектация", v: "6 шт." },
+  ],
+},
+{
+  slug: "hyfrecator-2000",
+  image: "/products/hyfrecator-2000.jpg",
+  title: "Hyfrecator® 2000",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "Новинка",
+  short: "Компактный электрохирургический генератор для амбулаторных процедур.",
+  specs: [
+    { k: "Производитель", v: "CONMED Corporation, США" },
+    { k: "Монополярный режим", v: "0–35 Вт" },
+    { k: "Биполярный режим", v: "0–35 Вт" },
+    { k: "Низковольтный режим", v: "0–20 Вт" },
+    { k: "Вес", v: "2.7 кг" },
+  ],
+},
+
+{
+  slug: "hyfrecator-handpiece-manual",
+  image: "/products/hyfrecator-handpiece-manual.jpg",
+  title: "Hyfrecator Autoclavable Handpiece",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Многоразовая автоклавируемая ручка с ручным управлением.",
+  specs: [
+    { k: "Тип", v: "Многоразовая" },
+    { k: "Управление", v: "Ручное" },
+    { k: "Стерилизация", v: "Автоклав" },
+  ],
+},
+
+{
+  slug: "hyfrecator-handpiece-foot",
+  image: "/products/hyfrecator-handpiece-foot.jpg",
+  title: "Hyfrecator Foot Control Handpiece",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Автоклавируемая ручка для ножного управления.",
+  specs: [
+    { k: "Тип", v: "Многоразовая" },
+    { k: "Управление", v: "Ножная педаль" },
+    { k: "Стерилизация", v: "Автоклав" },
+  ],
+},
+
+{
+  slug: "electrolase-sharp",
+  image: "/products/electrolase-sharp.jpg",
+  title: "Electrolase® Sharp Electrodes",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Одноразовые электроды с острым наконечником.",
+  specs: [
+    { k: "Тип", v: "Острый наконечник" },
+    { k: "Исполнение", v: "Стерильные / нестерильные" },
+  ],
+},
+
+{
+  slug: "electrolase-blunt",
+  image: "/products/electrolase-blunt.jpg",
+  title: "Electrolase® Blunt Electrodes",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Одноразовые электроды с тупым наконечником.",
+  specs: [
+    { k: "Тип", v: "Тупой наконечник" },
+    { k: "Исполнение", v: "Стерильные / нестерильные" },
+  ],
+},
+
+{
+  slug: "hyfrecator-bipolar-forceps",
+  image: "/products/hyfrecator-bipolar-forceps.jpg",
+  title: "Hyfrecator Bipolar Forceps",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Биполярные щипцы для точной коагуляции тканей.",
+  specs: [
+    { k: "Тип", v: "Биполярные щипцы" },
+    { k: "Назначение", v: "Коагуляция тканей" },
+  ],
+},
+
+{
+  slug: "hyfrecator-mobile-stand",
+  image: "/products/hyfrecator-mobile-stand.jpg",
+  title: "Hyfrecator Mobile Stand",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Телескопическая мобильная стойка для аппарата Hyfrecator.",
+  specs: [
+    { k: "Тип", v: "Передвижная стойка" },
+    { k: "Назначение", v: "Hyfrecator® 2000" },
+  ],
+},
+
+{
+  slug: "hyfrecator-footswitch",
+  image: "/products/hyfrecator-footswitch.jpg",
+  title: "Hyfrecator Foot Switch",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Ножной переключатель для электрохирургического генератора.",
+  specs: [
+    { k: "Тип", v: "Ножная педаль" },
+    { k: "Совместимость", v: "Hyfrecator® 2000" },
+  ],
+},
+{
+  slug: "system-2450-generator",
+  image: "/products/system-2450-generator.jpg",
+  title: "System 2450™",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "Новинка",
+  short: "Высокочастотный электрохирургический генератор с технологией Dynamic Response.",
+  specs: [
+    { k: "Производитель", v: "CONMED Corporation, США" },
+    { k: "Технология", v: "Dynamic Response" },
+    { k: "Режимы", v: "Pure Cut, Blend, Spray Coag, Micro Bipolar, Macro Bipolar" },
+    { k: "ARM", v: "Контроль качества контакта пациента" },
+    { k: "Вес", v: "14.5 кг" },
+  ],
+},
+
+{
+  slug: "goldline-handpiece",
+  image: "/products/goldline-handpiece.jpg",
+  title: "GoldLine® Electrosurgical Handpiece",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Электрохирургическая ручка GoldLine.",
+  specs: [
+    { k: "Тип", v: "Одноразовая / многоразовая" },
+    { k: "Особенности", v: "Герметичные кнопки, шестигранный фиксатор" },
+  ],
+},
+
+{
+  slug: "ultraclean-electrodes",
+  image: "/products/ultraclean-electrodes.jpg",
+  title: "UltraClean® Electrodes",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Электроды UltraClean с антипригарным покрытием.",
+  specs: [
+    { k: "Тип", v: "Электроды с покрытием UltraClean" },
+    { k: "Особенности", v: "Изгиб до 90°" },
+  ],
+},
+
+{
+  slug: "tungsten-micro-needles",
+  image: "/products/tungsten-micro-needles.jpg",
+  title: "Tungsten Micro Needles",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Вольфрамовые микроиглы для точной электрохирургии.",
+  specs: [
+    { k: "Материал", v: "Вольфрам" },
+    { k: "Назначение", v: "Высокоточная коагуляция" },
+  ],
+},
+
+{
+  slug: "thermogard-electrodes",
+  image: "/products/thermogard-electrodes.jpg",
+  title: "ThermoGard® Patient Return Electrodes",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Нейтральные электроды ThermoGard.",
+  specs: [
+    { k: "Тип", v: "Дисперсионные электроды" },
+    { k: "Технология", v: "Blue Hydrogel" },
+    { k: "Совместимость", v: "System 2450" },
+  ],
+},
+
+{
+  slug: "system-2450-footswitch",
+  image: "/products/system-2450-footswitch.jpg",
+  title: "System 2450 Foot Switch",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Монополярная ножная педаль.",
+  specs: [
+    { k: "Тип", v: "Ножной переключатель" },
+    { k: "Совместимость", v: "System 2450" },
+  ],
+},
+{
+  slug: "system-5000-generator",
+  image: "/products/system-5000-generator.jpg",
+  title: "System 5000™",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "Флагманская модель",
+  short: "Высокочастотный электрохирургический генератор для общей, лапароскопической и роботизированной хирургии.",
+  specs: [
+    { k: "Производитель", v: "CONMED Corporation, США" },
+    { k: "Технология", v: "Dynamic Response" },
+    { k: "Память", v: "9 программируемых профилей" },
+    { k: "Режимы", v: "General, Lap, Fluids, Pulse Coag, Pulse Cut, Micro Bipolar, Macro Bipolar" },
+    { k: "Вес", v: "9.75 кг" },
+  ],
+},
+
+{
+  slug: "system-5000-monopolar-footswitch",
+  image: "/products/system-5000-monopolar-footswitch.jpg",
+  title: "System 5000 Monopolar Foot Switch",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Монополярная ножная педаль для System 5000.",
+  specs: [
+    { k: "Тип", v: "Ножной переключатель" },
+    { k: "Совместимость", v: "System 5000™" },
+  ],
+},
+
+{
+  slug: "system-5000-bipolar-footswitch",
+  image: "/products/system-5000-bipolar-footswitch.jpg",
+  title: "System 5000 Bipolar Foot Switch",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Биполярная ножная педаль для System 5000.",
+  specs: [
+    { k: "Тип", v: "Биполярный ножной переключатель" },
+    { k: "Совместимость", v: "System 5000™" },
+  ],
+},
+
+{
+  slug: "system-5000-ultraclean-electrode",
+  image: "/products/system-5000-ultraclean-electrode.jpg",
+  title: "UltraClean® Electrode",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Электрод UltraClean с антипригарным покрытием.",
+  specs: [
+    { k: "Тип", v: "Одноразовый электрод" },
+    { k: "Покрытие", v: "UltraClean®" },
+    { k: "Совместимость", v: "System 5000™" },
+  ],
+},
+
+{
+  slug: "system-5000-thermogard",
+  image: "/products/system-5000-thermogard.jpg",
+  title: "ThermoGard® Return Electrode",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Нейтральный электрод ThermoGard.",
+  specs: [
+    { k: "Тип", v: "Дисперсионный электрод" },
+    { k: "Технология", v: "Blue Hydrogel" },
+    { k: "Совместимость", v: "System 5000™" },
+  ],
+},
+
+{
+  slug: "system-5000-goldline",
+  image: "/products/system-5000-goldline.jpg",
+  title: "GoldLine® Handpiece",
+  brand: "CONMED",
+  category: "electrosurgical-units",
+  note: "",
+  short: "Электрохирургическая ручка GoldLine.",
+  specs: [
+    { k: "Тип", v: "Ручка GoldLine®" },
+    { k: "Особенности", v: "Герметичные кнопки, надежный захват" },
+    { k: "Совместимость", v: "System 5000™" },
+  ],
+},
 ];
+
 
 export function getCategory(slug: string) {
   return categories.find((c) => c.slug === slug);
